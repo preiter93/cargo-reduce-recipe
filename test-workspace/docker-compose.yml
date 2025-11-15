@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  foo:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: foo
+    image: services_foo:latest
+
+  bar:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: bar
+    image: services_bar:latest
+
+  baz:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        SERVICE_NAME: baz
+    image: services_baz:latest

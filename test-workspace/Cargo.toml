@@ -1,0 +1,6 @@
+[workspace]
+resolver = "3"
+members = ["bar", "baz", "foo"]
+
+[workspace.dependencies]
+either = "1"

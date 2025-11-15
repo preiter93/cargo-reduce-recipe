@@ -1,0 +1,44 @@
+set dotenv-load := true
+
+default:
+    @just --list
+
+# Cargo chef prepares foo
+[group: "chef"]
+chef-prepare-foo:
+  cargo chef prepare --bin foo --recipe-path recipe-foo.json
+
+# Cargo chef prepares bar
+[group: "chef"]
+chef-prepare-bar:
+  cargo chef prepare --bin bar --recipe-path recipe-bar.json
+
+# Cargo chef prepares baz
+[group: "chef"]
+chef-prepare-baz:
+  cargo chef prepare --bin baz --recipe-path recipe-baz.json
+
+# Cargo chef prepares all
+[group: "chef"]
+chef-prepare:
+  cargo chef prepare --recipe-path recipe.json
+
+# Docker builds foo
+[group: "docker"]
+docker-build-foo:
+  docker compose -f docker-compose.yml build foo
+
+# Docker builds bar
+[group: "docker"]
+docker-build-bar:
+  docker compose -f docker-compose.yml build bar
+
+# Docker builds baz
+[group: "docker"]
+docker-build-baz:
+  docker compose -f docker-compose.yml build baz
+
+# Docker builds all
+[group: "docker"]
+docker-build:
+  docker compose -f docker-compose.yml build

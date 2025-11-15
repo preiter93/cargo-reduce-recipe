@@ -1,0 +1,20 @@
+[package]
+name = "cargo-reduce-workspace-recipe"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "cargo-reduce-workspace-recipe"
+path = "src/main.rs"
+
+[lib]
+name = "reduce_workspace_recipe"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1"
+cargo-chef = "0.1"
+serde_json = "1"
+serde = { version = "1.0", features = ["derive"] }
+toml_edit = { version = "0.23", features = ["serde"] }
+clap = "4"

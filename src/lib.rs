@@ -47,6 +47,47 @@
 //! ```sh
 //! cargo chef cook --release --recipe-path recipe-bar-reduced.json --bin bar
 //! ```
+//!
+//! # Docker
+//!
+//! `cargo-reduce-workspace-recipe` can be used together with `cargo-chef` in a Dockerfile:
+//! ```Dockerfile
+//! ARG SERVICE_NAME
+//!
+//! FROM rust:1.88-bookworm AS chef
+//! WORKDIR /services
+//!
+//! # Install cargo-chef and cargo-reduce-workspace-recipe
+//! RUN cargo install cargo-chef --locked --version 0.1.73 \
+//!     && cargo install --git https://github.com/preiter93/reduce-workspace-recipe --tag v0.1.0
+//!
+//! # Prepare the workspace recipe
+//! FROM chef as planner
+//! ARG SERVICE_NAME
+//! ENV SERVICE_NAME=${SERVICE_NAME}
+//! COPY . .
+//! RUN cargo chef prepare --bin ${SERVICE_NAME} --recipe-path recipe.json
+//!
+//! # Reduce the workspace recipe
+//! RUN cargo-reduce-workspace-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json
+//!
+//! # Build the dependencies
+//! FROM chef as builder
+//! ARG SERVICE_NAME
+//! ENV SERVICE_NAME=${SERVICE_NAME}
+//! COPY --from=planner /services/recipe-reduced.json recipe-reduced.json
+//! RUN cargo chef cook --release --recipe-path recipe-reduced.json --bin ${SERVICE_NAME}
+//!
+//! # Build the binary
+//! COPY . .
+//! RUN cargo build --release --bin ${SERVICE_NAME}
+//!
+//! # Run the service
+//! FROM debian:bookworm-slim AS runtime
+//! ARG SERVICE_NAME
+//! COPY --from=builder /services/target/release/${SERVICE_NAME} /usr/local/bin/main
+//! ENTRYPOINT ["/usr/local/bin/main"]
+//! ```
 use anyhow::{Context, Result};
 use chef::{Manifest, Recipe};
 use std::{

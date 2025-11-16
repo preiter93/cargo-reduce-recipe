@@ -10,7 +10,6 @@ use std::path::PathBuf;
 /// that are needed.
 #[derive(Parser)]
 #[command(
-    author = "Philipp Reiter",
     version = "0.1.0",
     about = "Reduces a Cargo Chef workspace recipe by filtering unused workspace members"
 )]

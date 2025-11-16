@@ -205,9 +205,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_do_not_reduce_full_member_recipe() -> Result<()> {
-        let given_path = "test-files/recipe.json";
-        let want_path = "test-files/recipe.json";
+    fn test_keep_full_member_recipe_intact() -> Result<()> {
+        let given_path = "test-data/recipes/recipe.json";
+        let want_path = "test-data/recipes/recipe.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_workspace_recipe(&recipe)?;
@@ -223,8 +223,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_without_member_dependency() -> Result<()> {
-        let given_path = "test-files/given-recipe-bar.json";
-        let want_path = "test-files/want-recipe-bar.json";
+        let given_path = "test-data/recipes/given-recipe-bar.json";
+        let want_path = "test-data/recipes/want-recipe-bar.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_workspace_recipe(&recipe)?;
@@ -240,8 +240,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_with_member_dependency() -> Result<()> {
-        let given_path = "test-files/given-recipe-baz.json";
-        let want_path = "test-files/want-recipe-baz.json";
+        let given_path = "test-data/recipes/given-recipe-baz.json";
+        let want_path = "test-data/recipes/want-recipe-baz.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_workspace_recipe(&recipe)?;

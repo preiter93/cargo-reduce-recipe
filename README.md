@@ -5,7 +5,7 @@
 ## Problem
 
 Consider a workspace like this:
-```
+```sh
 ├── Cargo.toml
 ├── bar
 └── foo
@@ -13,7 +13,7 @@ Consider a workspace like this:
 `bar` and `foo` are completely independent.
 
 However, when using [cargo-chef](https://github.com/LukeMathWalker/cargo-chef), adding a new dependency to `foo` will still force `bar` to be rebuilt even if you run:
-```
+```sh
 cargo chef prepare --bin bar --recipe-path recipe-bar.json
 ```
 
@@ -28,18 +28,20 @@ As a result a change in `foo`’s dependencies invalidates the Docker cache for 
 To build dependency recipes for only a specific workspace member, follow this:
 
 1. Prepare a recipe for a single member
-```
+```sh
 cargo chef prepare --bin bar --recipe-path recipe-bar.json
 ```
 
 2. Reduce the recipe
-```
+```sh
 cargo-reduce-workspace-recipe \
     --recipe-path-in recipe-bar.json \
     --recipe-path-out recipe-bar-reduced.json
 ```
 
 3. Cook the reduced recipe
-```
+```sh
 cargo chef cook --release --recipe-path recipe-bar-reduced.json --bin bar
 ```
+
+License: MIT

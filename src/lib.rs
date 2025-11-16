@@ -9,6 +9,16 @@ use toml_edit::{Document, Item};
 
 /// Loads a recipe, reduces it with [`reduce_workspace_recipe`] and
 /// saves the reduces recipe to a file.
+///
+/// # Errors
+/// - Could not load the file
+/// - Could not get root manifest
+/// - Could not find root workspace members
+/// - Could not find all workspace members
+/// - Could not build dependencies
+/// - Could not filter manifest
+/// - Could not filter lockfile
+/// - Could not save the file
 pub fn reduce_workspace_recipe_file<P: AsRef<Path>>(input_path: &P, output_path: &P) -> Result<()> {
     let recipe = load_recipe(input_path)?;
 
@@ -23,6 +33,14 @@ pub fn reduce_workspace_recipe_file<P: AsRef<Path>>(input_path: &P, output_path:
 /// - Finds the root workspace members that the recipe should be reduced to
 /// - Calculates dependencies and transitive dependencies of the root members
 /// - Filters manifest and lockfile
+///
+/// # Errors
+/// - Could not get root manifest
+/// - Could not find root workspace members
+/// - Could not find all workspace members
+/// - Could not build dependencies
+/// - Could not filter manifest
+/// - Could not filter lockfile
 pub fn reduce_workspace_recipe(recipe: &Recipe) -> Result<Recipe> {
     let root_manifest = get_root_manifest(recipe)?;
 
@@ -30,7 +48,7 @@ pub fn reduce_workspace_recipe(recipe: &Recipe) -> Result<Recipe> {
 
     let all_members = get_all_workspace_members(recipe);
 
-    let dependencies = build_workspace_deps(&recipe, &all_members);
+    let dependencies = build_workspace_deps(recipe, &all_members);
 
     let keep_members = compute_transitive_members(&root_members, &dependencies);
 
@@ -65,18 +83,14 @@ fn get_root_workspace_members(root: &Manifest) -> Result<HashSet<String>> {
 
     Ok(members
         .iter()
-        .filter_map(|x| x.as_str().map(|s| s.to_string()))
+        .filter_map(|x| x.as_str().map(ToString::to_string))
         .collect())
 }
 
 // Extract all workspace members
 fn get_all_workspace_members(recipe: &Recipe) -> HashSet<String> {
-    recipe
-        .skeleton
-        .manifests
-        .iter()
-        .filter_map(|m| extract_crate_name(m))
-        .collect()
+    let manifests = &recipe.skeleton.manifests;
+    manifests.iter().filter_map(extract_crate_name).collect()
 }
 
 /// Build workspace dependency map
@@ -94,7 +108,7 @@ fn build_workspace_deps(
                 Err(_) => continue,
             };
             if let Some(table) = doc.get("dependencies").and_then(|v| v.as_table()) {
-                for (dep_name, _) in table.iter() {
+                for (dep_name, _) in table {
                     if all_members.contains(dep_name) {
                         deps.insert(dep_name.to_string());
                     }
@@ -116,10 +130,10 @@ fn compute_transitive_members(
     let mut stack: Vec<&String> = root_members.iter().collect();
 
     while let Some(member) = stack.pop() {
-        if keep.insert(member.clone()) {
-            if let Some(ds) = deps.get(member) {
-                stack.extend(ds.iter());
-            }
+        if keep.insert(member.clone())
+            && let Some(ds) = deps.get(member)
+        {
+            stack.extend(ds.iter());
         }
     }
 
@@ -135,7 +149,7 @@ fn filter_manifests(recipe: &mut Recipe, keep_members: &HashSet<String>) {
     recipe
         .skeleton
         .manifests
-        .retain(|m| extract_crate_name(m).map_or(true, |name| keep_members.contains(&name)));
+        .retain(|m| extract_crate_name(m).is_none_or(|name| keep_members.contains(&name)));
 }
 
 /// Filter lockfile to keep only dependencies we want
@@ -152,8 +166,7 @@ fn filter_lockfile_members(
             array.retain(|pkg| {
                 pkg.get("name")
                     .and_then(|v| v.as_str())
-                    .map(|name| !all_members.contains(name) || keep_members.contains(name))
-                    .unwrap_or(true)
+                    .is_none_or(|name| !all_members.contains(name) || keep_members.contains(name))
             });
         }
 

@@ -7,44 +7,39 @@ use std::{
 };
 use toml_edit::{Document, Item};
 
-/// Reduce a recipe and return it as a JSON string
+/// Loads a recipe, reduces it with [`reduce_workspace_recipe`] and
+/// saves the reduces recipe to a file.
+pub fn reduce_workspace_recipe_file<P: AsRef<Path>>(input_path: &P, output_path: &P) -> Result<()> {
+    let recipe = load_recipe(input_path)?;
+
+    let reduced = reduce_workspace_recipe(&recipe)?;
+
+    let out = serde_json::to_string(&reduced).context("failed to serialize reduced recipe")?;
+    save_recipe(&out, output_path)
+}
+
+/// Reduce a workspace recipe and return it as a JSON string
+///
+/// - Finds the root workspace members that the recipe should be reduced to
+/// - Calculates dependencies and transitive dependencies of the root members
+/// - Filters manifest and lockfile
 pub fn reduce_workspace_recipe(recipe: &Recipe) -> Result<Recipe> {
-    // Find root Cargo.toml
     let root_manifest = get_root_manifest(recipe)?;
 
-    // Extract the single workspace member
     let root_members = get_root_workspace_members(root_manifest)?;
 
-    // Extract all workspace members
     let all_members = get_all_workspace_members(recipe);
 
-    // Build workspace dependency map
     let dependencies = build_workspace_deps(&recipe, &all_members);
 
-    // Compute transitive members
     let keep_members = compute_transitive_members(&root_members, &dependencies);
 
-    // Filter manifests
     let mut reduced = recipe.clone();
     filter_manifests(&mut reduced, &keep_members);
 
-    // Filter lockfile
     filter_lockfile_members(&mut reduced, &all_members, &keep_members)?;
 
     Ok(reduced)
-}
-
-/// Reduce a recipe and save it to a file
-pub fn reduce_workspace_recipe_file<P: AsRef<Path>>(input_path: &P, output_path: &P) -> Result<()> {
-    // Load the recipe
-    let recipe = load_recipe(input_path)?;
-
-    // Reduce it and get the string
-    let reduced = reduce_workspace_recipe(&recipe)?;
-
-    // Save using save_recipe
-    let out = serde_json::to_string(&reduced).context("failed to serialize reduced recipe")?;
-    save_recipe(&out, output_path)
 }
 
 /// Find root Cargo.toml
@@ -57,7 +52,7 @@ fn get_root_manifest(recipe: &Recipe) -> Result<&Manifest> {
         .context("no root Cargo.toml found")
 }
 
-/// Extract all active workspace members
+/// Extract the root workspace members that the recipe will be reduce to
 fn get_root_workspace_members(root: &Manifest) -> Result<HashSet<String>> {
     let doc: Document<String> = root
         .contents
@@ -74,7 +69,7 @@ fn get_root_workspace_members(root: &Manifest) -> Result<HashSet<String>> {
         .collect())
 }
 
-/// Returns all workspace members
+// Extract all workspace members
 fn get_all_workspace_members(recipe: &Recipe) -> HashSet<String> {
     recipe
         .skeleton
@@ -132,13 +127,15 @@ fn compute_transitive_members(
 }
 
 /// Filter manifests to keep only the workspace members we want
+///
+/// Keep if:
+/// - It's the root Cargo.toml (no package name)
+/// - Its crate name is in the keep set
 fn filter_manifests(recipe: &mut Recipe, keep_members: &HashSet<String>) {
-    recipe.skeleton.manifests.retain(|m| {
-        // Keep if:
-        // - It's the root Cargo.toml (no package name)
-        // - Its crate name is in the keep set
-        extract_crate_name(m).map_or(true, |name| keep_members.contains(&name))
-    });
+    recipe
+        .skeleton
+        .manifests
+        .retain(|m| extract_crate_name(m).map_or(true, |name| keep_members.contains(&name)));
 }
 
 /// Filter lockfile to keep only dependencies we want
@@ -194,23 +191,22 @@ fn save_recipe<P: AsRef<Path>>(json: &str, path: P) -> Result<()> {
 mod tests {
     use super::*;
 
-    // #[test]
-    // fn test_do_not_reduce_full_member_recipe() -> Result<()> {
-    //     let given_path = "test-files/recipe.json";
-    //     let want_path = "test-files/recipe.json";
-    //
-    //     let recipe = load_recipe(given_path)?;
-    //     let reduced = reduce_workspace_recipe_string(&recipe)?;
-    //
-    //     let want_recipe = load_recipe(want_path)?;
-    //     let want = serde_json::to_string(&want_recipe)?;
-    //
-    //     assert_eq!(
-    //         reduced, want,
-    //         "reduced recipe does not match expected output"
-    //     );
-    //     Ok(())
-    // }
+    #[test]
+    fn test_do_not_reduce_full_member_recipe() -> Result<()> {
+        let given_path = "test-files/recipe.json";
+        let want_path = "test-files/recipe.json";
+
+        let recipe = load_recipe(given_path)?;
+        let reduced = reduce_workspace_recipe(&recipe)?;
+
+        let want_reduced = load_recipe(want_path)?;
+
+        assert_eq!(
+            reduced, want_reduced,
+            "reduced recipe does not match expected output"
+        );
+        Ok(())
+    }
 
     #[test]
     fn test_reduce_recipe_without_member_dependency() -> Result<()> {
@@ -223,27 +219,26 @@ mod tests {
         let want_reduced = load_recipe(want_path)?;
 
         assert_eq!(
-            reduced.skeleton.manifests, want_reduced.skeleton.manifests,
+            reduced, want_reduced,
             "reduced recipe does not match expected output"
         );
         Ok(())
     }
 
-    // #[test]
-    // fn test_reduce_recipe_with_member_dependency() -> Result<()> {
-    //     let given_path = "test-files/given-recipe-baz.json";
-    //     let want_path = "test-files/want-recipe-baz.json";
-    //
-    //     let recipe = load_recipe(given_path)?;
-    //     let reduced = reduce_workspace_recipe_string(&recipe)?;
-    //
-    //     let want_recipe = load_recipe(want_path)?;
-    //     let want = serde_json::to_string(&want_recipe)?;
-    //
-    //     assert_eq!(
-    //         reduced, want,
-    //         "Reduced recipe does not match expected output"
-    //     );
-    //     Ok(())
-    // }
+    #[test]
+    fn test_reduce_recipe_with_member_dependency() -> Result<()> {
+        let given_path = "test-files/given-recipe-baz.json";
+        let want_path = "test-files/want-recipe-baz.json";
+
+        let recipe = load_recipe(given_path)?;
+        let reduced = reduce_workspace_recipe(&recipe)?;
+
+        let want_reduced = load_recipe(want_path)?;
+
+        assert_eq!(
+            reduced, want_reduced,
+            "Reduced recipe does not match expected output"
+        );
+        Ok(())
+    }
 }

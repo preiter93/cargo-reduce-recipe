@@ -4,15 +4,24 @@
 
 ## Problem
 
-When using [cargo-chef](https://github.com/LukeMathWalker/cargo-chef) on a workspace with multiple members if **one member’s dependencies change all other members get rebuild** irrespective of whether they depend on that member. This is because the recipe, even though it got filtered with `--bin foo`, still contains all workspace members and their dependencies in the manifest and the lockfile. **This causes unnecessary rebuilds of unrelated members**.
+Consider a workspace like this:
+```
+├── Cargo.toml
+├── bar
+└── foo
+```
+`bar` and `foo` are completely independent.
 
-## Solution
+However, when using [cargo-chef](https://github.com/LukeMathWalker/cargo-chef), adding a new dependency to `foo` will still force `bar` to be rebuilt even if you run:
+```
+cargo chef prepare --bin bar --recipe-path recipe-bar.json
+```
 
-This crate filters a recipe **after a `cargo chef prepare` step**:
+The issue is that cargo-chef’s generated recipe still includes all workspace members manifests and lockfiles even those that are unrelated to the filtered member.
 
-- Keeps only the workspace members that the main member depends on or transitively depends on
-- Removes manifests and lockfile entries for unused workspace members.
-- Preserves all external dependencies.
+As a result a change in `foo`’s dependencies invalidates the Docker cache for `bar`.
+
+`cargo-reduce-workspce-recipe` fixes that. It post-processes the generated recipe and removes all dependency and lockfile entries that are not actually required by the selected workspace member (directly or transitively). The result is a minimized recipe ensuring that unrelated workspace changes no longer trigger unnecessary rebuilds.
 
 ## Usage
 

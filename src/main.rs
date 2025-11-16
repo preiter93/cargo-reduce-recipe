@@ -30,12 +30,22 @@ struct Args {
         help = "Path to write the reduced recipe.json"
     )]
     recipe_out: PathBuf,
+
+    /// The workspace binary to keep.
+    /// All of its transitive workspace dependencies will be kept.
+    #[arg(
+        long = "bin",
+        value_name = "NAME",
+        required = true,
+        help = "The workspace binary to keep (all its dependent members will be kept)"
+    )]
+    bin: String,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    reduce_recipe_file(&args.recipe_in, &args.recipe_out)?;
+    reduce_recipe_file(&args.recipe_in, &args.recipe_out, &args.bin)?;
 
     Ok(())
 }

@@ -20,7 +20,7 @@ Consider a workspace like this:
 
 However, when using [cargo-chef](https://github.com/LukeMathWalker/cargo-chef), adding a new dependency to `foo` will still force `bar` to be rebuilt even if you run:
 ```sh
-cargo chef prepare --bin bar --recipe-path recipe-bar.json
+cargo chef prepare --recipe-path recipe-bar.json --bin bar 
 ```
 
 The issue is that cargo-chef’s generated recipe still includes all workspace members manifests and lockfiles even those that are unrelated to the filtered member.
@@ -43,14 +43,15 @@ To build dependency recipes for only a specific workspace member, follow this:
 
 1. Prepare a recipe for a single member
 ```sh
-cargo chef prepare --bin bar --recipe-path recipe-bar.json
+cargo chef prepare --recipe-path recipe-bar.json --bin bar 
 ```
 
 2. Reduce the recipe
 ```sh
 cargo-reduce-recipe \
     --recipe-path-in recipe-bar.json \
-    --recipe-path-out recipe-bar-reduced.json
+    --recipe-path-out recipe-bar-reduced.json \
+    --bin bar
 ```
 
 3. Cook the reduced recipe
@@ -78,8 +79,8 @@ FROM chef as planner
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
 COPY . .
-RUN cargo chef prepare --bin ${SERVICE_NAME} --recipe-path recipe.json \
-    && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json
+RUN cargo chef prepare --recipe-path recipe.json --bin ${SERVICE_NAME} \
+    && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json --bin ${SERVICE_NAME}
 
 # Build the dependencies
 FROM chef as builder

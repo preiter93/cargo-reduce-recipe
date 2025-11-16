@@ -3,7 +3,7 @@
     "manifests": [
       {
         "relative_path": "Cargo.toml",
-        "contents": "[workspace]\nmembers = [\"bar\"]\nresolver = \"3\"\n\n[workspace.dependencies]\neither = \"1.15.0\"\n",
+        "contents": "[workspace]\nmembers = [\"bar\", \"foo\"]\nresolver = \"3\"\n\n[workspace.dependencies]\neither = \"1.15.0\"\n",
         "targets": []
       },
       {

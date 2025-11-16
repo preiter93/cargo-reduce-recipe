@@ -3,12 +3,12 @@
     "manifests": [
       {
         "relative_path": "Cargo.toml",
-        "contents": "[workspace]\nmembers = [\"bar\", \"baz\", \"foo\"]\nresolver = \"3\"\n\n[workspace.dependencies]\neither = \"1\"\n",
+        "contents": "[workspace]\nmembers = [\"bar\", \"foo\"]\nresolver = \"3\"\n\n[workspace.dependencies]\neither = \"1.15.0\"\n",
         "targets": []
       },
       {
         "relative_path": "bar/Cargo.toml",
-        "contents": "[package]\nname = \"bar\"\nedition = \"2024\"\nversion = \"0.0.1\"\n\n[dependencies.either]\nworkspace = true\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"bar\"\nplugin = false\nproc-macro = false\nedition = \"2024\"\nrequired-features = []\n",
+        "contents": "[package]\nname = \"bar\"\nversion = \"0.0.1\"\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"bar\"\nplugin = false\nproc-macro = false\nrequired-features = []\n",
         "targets": [
           {
             "path": "src/main.rs",
@@ -18,19 +18,8 @@
         ]
       },
       {
-        "relative_path": "baz/Cargo.toml",
-        "contents": "[package]\nname = \"baz\"\nedition = \"2024\"\nversion = \"0.0.1\"\n\n[dependencies.bar]\npath = \"../bar\"\n\n[dependencies.either]\nworkspace = true\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"baz\"\nplugin = false\nproc-macro = false\nedition = \"2024\"\nrequired-features = []\n",
-        "targets": [
-          {
-            "path": "src/main.rs",
-            "kind": "Bin",
-            "name": "baz"
-          }
-        ]
-      },
-      {
         "relative_path": "foo/Cargo.toml",
-        "contents": "[package]\nname = \"foo\"\nedition = \"2024\"\nversion = \"0.0.1\"\n\n[dependencies.either]\nworkspace = true\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"foo\"\nplugin = false\nproc-macro = false\nedition = \"2024\"\nrequired-features = []\n",
+        "contents": "[package]\nname = \"foo\"\nversion = \"0.0.1\"\n\n[dependencies.either]\nworkspace = true\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"foo\"\nplugin = false\nproc-macro = false\nrequired-features = []\n",
         "targets": [
           {
             "path": "src/main.rs",
@@ -41,7 +30,7 @@
       }
     ],
     "config_file": null,
-    "lock_file": "version = 4\n\n[[package]]\nname = \"bar\"\nversion = \"0.0.1\"\ndependencies = [\"either\"]\n\n[[package]]\nname = \"baz\"\nversion = \"0.0.1\"\ndependencies = [\"either\", \"foo\"]\n\n[[package]]\nname = \"either\"\nversion = \"1.15.0\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719\"\n\n[[package]]\nname = \"foo\"\nversion = \"0.0.1\"\ndependencies = [\"either\"]\n",
+    "lock_file": "version = 4\n\n[[package]]\nname = \"bar\"\nversion = \"0.0.1\"\n\n[[package]]\nname = \"either\"\nversion = \"1.15.0\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\nchecksum = \"48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719\"\n\n[[package]]\nname = \"foo\"\nversion = \"0.0.1\"\ndependencies = [\"either\"]\n",
     "rust_toolchain_file": null
   }
 }

@@ -1,5 +1,11 @@
 # cargo-reduce-workspace-recipe
 
+<div align="center">
+
+[![Continuous Integration](https://github.com/preiter93/reduce-workspace-recipe/actions/workflows/ci.yml/badge.svg)](https://github.com/preiter93/reduce-workspace-recipe/actions/workflows/ci.yml)
+
+</div>
+
 `cargo-reduce-workspace-recipe` post-processes `cargo-chef` recipes for workspaces with multiple interdependent members.
 
 ## Problem

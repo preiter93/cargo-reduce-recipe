@@ -322,8 +322,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_without_member_dependency() -> Result<()> {
-        let given_path = "test-data/recipes/given-recipe-bar.json";
-        let want_path = "test-data/recipes/want-recipe-bar.json";
+        let given_path = "test-data/recipes/recipe-bar.json";
+        let want_path = "test-data/recipes/recipe-bar-reduced.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_recipe(&recipe)?;
@@ -339,8 +339,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_with_member_dependency() -> Result<()> {
-        let given_path = "test-data/recipes/given-recipe-baz.json";
-        let want_path = "test-data/recipes/want-recipe-baz.json";
+        let given_path = "test-data/recipes/recipe-foo.json";
+        let want_path = "test-data/recipes/recipe-foo-reduced.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_recipe(&recipe)?;

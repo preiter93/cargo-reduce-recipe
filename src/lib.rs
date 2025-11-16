@@ -1,5 +1,4 @@
-//! `cargo-reduce-workspace-recipe` reduces `cargo-chef` recipes for multi-member workspaces by removing dependencies that are unrelated to the targeted member.  
-//! This results in improved Docker caching.
+//! `cargo-reduce-workspace-recipe` reduces `cargo-chef` recipes for multi-member workspaces by removing dependencies that are unrelated to the targeted member. This results in improved Docker caching.
 //!
 //! # Problem
 //!
@@ -25,7 +24,7 @@
 //! # Installation
 //!
 //! ```sh
-//! cargo install --git https://github.com/preiter93/reduce-workspace-recipe
+//! cargo install --git https://github.com/preiter93/reduce-workspace-recipe --tag v0.1.0
 //! ```
 //!
 //! # Usage

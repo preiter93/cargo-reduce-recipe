@@ -98,3 +98,7 @@ ARG SERVICE_NAME
 COPY --from=builder /services/target/release/${SERVICE_NAME} /usr/local/bin/main
 ENTRYPOINT ["/usr/local/bin/main"]
 ```
+
+## Disclaimer
+
+This functionality should probably be part of cargo-chef itself, see https://github.com/LukeMathWalker/cargo-chef/issues/323.

@@ -75,7 +75,7 @@ RUN cargo install cargo-chef --locked --version 0.1.73 \
     && cargo install --git https://github.com/preiter93/cargo-reduce-recipe --tag v0.1.0
 
 # Prepare and reduce the recipe 
-FROM chef as planner
+FROM chef AS planner
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
 COPY . .
@@ -83,7 +83,7 @@ RUN cargo chef prepare --recipe-path recipe.json --bin ${SERVICE_NAME} \
     && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json --target-member ${SERVICE_NAME}
 
 # Build the dependencies
-FROM chef as builder
+FROM chef AS builder
 ARG SERVICE_NAME
 ENV SERVICE_NAME=${SERVICE_NAME}
 COPY --from=planner /services/recipe-reduced.json recipe.json

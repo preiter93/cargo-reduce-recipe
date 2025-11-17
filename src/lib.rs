@@ -65,7 +65,7 @@
 //!     && cargo install --git https://github.com/preiter93/cargo-reduce-recipe --tag v0.1.0
 //!
 //! # Prepare the workspace recipe
-//! FROM chef as planner
+//! FROM chef AS planner
 //! ARG SERVICE_NAME
 //! ENV SERVICE_NAME=${SERVICE_NAME}
 //! COPY . .
@@ -73,7 +73,7 @@
 //!     && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json --target-member ${SERVICE_NAME}
 //!
 //! # Build the dependencies
-//! FROM chef as builder
+//! FROM chef AS builder
 //! ARG SERVICE_NAME
 //! ENV SERVICE_NAME=${SERVICE_NAME}
 //! COPY --from=planner /services/recipe-reduced.json recipe-reduced.json

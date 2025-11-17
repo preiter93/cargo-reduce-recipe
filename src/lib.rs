@@ -43,7 +43,7 @@
 //! cargo-reduce-recipe \
 //!     --recipe-path-in recipe-bar.json \
 //!     --recipe-path-out recipe-bar-reduced.json \
-//!     --target-member bar
+//!     --bin bar
 //! ```
 //!
 //! 3. Cook the reduced recipe
@@ -70,7 +70,7 @@
 //! ENV SERVICE_NAME=${SERVICE_NAME}
 //! COPY . .
 //! RUN cargo chef prepare --recipe-path recipe.json --bin ${SERVICE_NAME} \
-//!     && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json --target-member ${SERVICE_NAME}
+//!     && cargo-reduce-recipe --recipe-path-in recipe.json --recipe-path-out recipe-reduced.json --bin ${SERVICE_NAME}
 //!
 //! # Build the dependencies
 //! FROM chef AS builder

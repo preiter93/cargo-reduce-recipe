@@ -1,0 +1,20 @@
+{
+  "skeleton": {
+    "manifests": [
+      {
+        "relative_path": "Cargo.toml",
+        "contents": "[package]\nname = \"foo\"\nedition = \"2024\"\nversion = \"0.0.1\"\n\n[dependencies]\n\n[[bin]]\npath = \"src/main.rs\"\nname = \"foo\"\nplugin = false\nproc-macro = false\nedition = \"2024\"\nrequired-features = []\n",
+        "targets": [
+          {
+            "path": "src/main.rs",
+            "kind": "Bin",
+            "name": "foo"
+          }
+        ]
+      }
+    ],
+    "config_file": null,
+    "lock_file": null,
+    "rust_toolchain_file": null
+  }
+}

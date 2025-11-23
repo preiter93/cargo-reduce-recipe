@@ -193,14 +193,18 @@ fn get_workspace_deps(root: &Manifest) -> Result<HashSet<String>> {
         .parse()
         .context("root Cargo.toml is not valid toml")?;
 
-    let dependencies = doc["workspace"]["dependencies"]
-        .as_table()
-        .context("[workspace].dependencies must be a table")?;
+    let workspace = doc
+        .get("workspace")
+        .context("manifest must contain a [workspace] table")?;
 
-    Ok(dependencies
-        .iter()
-        .map(|(name, _)| name.to_string())
-        .collect())
+    let deps = match workspace.get("dependencies") {
+        Some(v) => v
+            .as_table()
+            .context("[workspace].dependencies must be a TOML table")?,
+        None => return Ok(HashSet::new()),
+    };
+
+    Ok(deps.iter().map(|(name, _)| name.to_string()).collect())
 }
 
 /// Build workspace dependency map
@@ -346,8 +350,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_without_member_dependency() -> Result<()> {
-        let given_path = "test-data/recipes/recipe-bar.json";
-        let want_path = "test-data/recipes/recipe-bar-reduced.json";
+        let given_path = "recipes/recipe-bar.json";
+        let want_path = "recipes/recipe-bar-reduced.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_recipe(&recipe, "bar")?;
@@ -363,8 +367,8 @@ mod tests {
 
     #[test]
     fn test_reduce_recipe_with_member_dependency() -> Result<()> {
-        let given_path = "test-data/recipes/recipe-foo.json";
-        let want_path = "test-data/recipes/recipe-foo-reduced.json";
+        let given_path = "recipes/recipe-foo.json";
+        let want_path = "recipes/recipe-foo-reduced.json";
 
         let recipe = load_recipe(given_path)?;
         let reduced = reduce_recipe(&recipe, "foo")?;
@@ -376,5 +380,14 @@ mod tests {
             "Reduced recipe does not match expected output"
         );
         Ok(())
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_no_workspace_recipe() {
+        let given_path = "recipes/recipe-no-workspace.json";
+
+        let recipe = load_recipe(given_path).unwrap();
+        let _ = reduce_recipe(&recipe, "bar").unwrap();
     }
 }
